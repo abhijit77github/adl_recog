@@ -28,7 +28,7 @@ print(df.shape[0])
 #df["end_time"]=df["end_time"].astype(str)
 
 df.loc[:,"date"]=pd.to_datetime(df["date"])
-df.loc[:,"time"]=pd.to_datetime(df["time"]).dt.time
+df.loc[:,"time"]=pd.to_datetime(df["time"])
 
 
 
@@ -185,6 +185,44 @@ print(df11.head())
 df11.to_csv("file.csv")
 
 # In[ ]:
+df11.loc[:, 'start_time'] = pd.to_datetime(df11.loc[:, 'start_time'])
 
+df11.loc[:, 'end_time'] = pd.to_datetime(df11.loc[:, 'end_time'])
+
+df11[:,'duration'] = df11['end_time'] - df11['start_time']
+
+dayOfWeek = {0: 'Monday', 1: 'Tuesday', 2: 'Wednesday', 3: 'Thursday', 4: 'Friday', 5: 'Saturday', 6: 'Sunday'}
+df11['weekday'] = df11['date'].dt.dayofweek.map(dayOfWeek)
+
+
+def season_of_date(date):
+    year = str(date.year)
+    seasons = {'spring': pd.date_range(start='21/03/' + year, end='20/06/' + year),
+               'summer': pd.date_range(start='21/06/' + year, end='22/09/' + year),
+               'autumn': pd.date_range(start='23/09/' + year, end='20/12/' + year)}
+    if date in seasons['spring']:
+        return 'spring'
+    if date in seasons['summer']:
+        return 'summer'
+    if date in seasons['autumn']:
+        return 'autumn'
+    else:
+        return 'winter'
+
+
+# Assuming df has a date column of type `datetime`
+df11['season'] = df11.date.map(season_of_date)
+
+df11.drop(['T001', 'T002', 'T003', 'T004', 'T005', 'P001'], axis=1, inplace=True)
+
+print("---time taken to complete this file is =   %s seconds ---" % (time.time() - start_tim))
+print(df11.head())
+df11.to_csv(out_fl_nam)
+df11['date']=pd.to_datetime(df11['date']).dt.date
+df11['start_time']=pd.to_datetime(df11['start_time']).dt.time
+df11['end_time']=pd.to_datetime(df11['end_time']).dt.time
+
+df11.drop(['ENTERHOME'],axis=1,inplace=True)
+df11.to_csv("aruba2.csv")
 
 
